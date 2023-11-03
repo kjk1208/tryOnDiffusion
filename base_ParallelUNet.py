@@ -11,20 +11,38 @@ class FiLM(nn.Module):
     def forward(self, x):
         return self.gamma * x + self.beta
 
+# class ResidualBlock(nn.Module):
+#     def __init__(self, in_channels, out_channels):
+#         super(ResidualBlock, self).__init__()
+#         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+#         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+#         self.relu = nn.ReLU(inplace=True)
+
+#     def forward(self, x):
+#         residual = x
+#         out = self.relu(self.conv1(x))
+#         out = self.conv2(out)
+#         out += residual
+#         out = self.relu(out)
+#         return out
+
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(ResidualBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+        self.film = FiLM(out_channels) # FiLM layer added
         self.relu = nn.ReLU(inplace=True)
-
+    
     def forward(self, x):
         residual = x
         out = self.relu(self.conv1(x))
-        out = self.conv2(out)
+        out = self.film(self.conv2(out))  # Apply FiLM after the second convolution
         out += residual
         out = self.relu(out)
         return out
+
+
 
 
 class SelfAttention(nn.Module):
